@@ -149,6 +149,8 @@ int main(void)
   } while(fix_status == 0); // should check for number of satellites? 6 seems reasonable
   printf("Now entering main loop\n\r");
   while (1) {
+	navigation_main_loop();
+	continue;
     printf("\n\n\rWhat would you like to test?");
     printf("\n\rType:"
             "\n\ra for Aliases"
@@ -220,7 +222,6 @@ int main(void)
     else{
         printf("\n\n\rSorry, what you selected isn't an option. Please try again.");
     }
-	navigation_main_loop();
 	continue;
 	printf("Latitude: ");
 	print_float(coord.y);
@@ -232,6 +233,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   }
+  printf("\n\rExiting Brain Subsytem Tests\n\r");
   /* USER CODE END 3 */
 }
 
