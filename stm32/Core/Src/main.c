@@ -31,6 +31,8 @@
 #include "navigation.h"
 #include "helper_functions.h"
 #include "navigation_tests.h"
+#include "location.h"
+#include "test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,6 +42,23 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#ifndef bool
+#define bool int
+#endif
+
+#ifndef true
+#define true 1
+#endif
+
+#ifndef false
+#define false 0
+#endif
+
+#define BUTTONS 0
+#define ALIASES 1
+#define OUTPUTS 2
+#define CUR_LOC 3
+#define QUIT 4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +75,7 @@ DMA_HandleTypeDef hdma_usart2_rx;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-
+int test_state = -1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,7 +112,8 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  char ch;
+  char buffer[100];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -111,6 +131,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   lwgps_init(&gps);
+  //Enables scanf and printf to work
+  setvbuf(stdin, NULL, _IONBF, 0);
   //test_runs();
   HAL_UART_Receive_DMA(&huart2, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE);
   /* USER CODE END 2 */
@@ -127,6 +149,77 @@ int main(void)
   } while(fix_status == 0); // should check for number of satellites? 6 seems reasonable
   printf("Now entering main loop\n\r");
   while (1) {
+    printf("\n\n\rWhat would you like to test?");
+    printf("\n\rType:"
+            "\n\ra for Aliases"
+            "\n\rb for Buttons"
+            "\n\rc for Current Location"
+            "\n\ro for Output"
+            "\n\rq to Quit"
+            "\n\r: ");
+    scanf("%c", &ch);
+    if(ch == 'a'){
+        strcpy(buffer, "ALIASES");
+        test_state = ALIASES;
+    }
+    else if(ch == 'b'){
+        strcpy(buffer, "BUTTONS");
+        test_state = BUTTONS;
+    }
+    else if(ch == 'c'){
+        strcpy(buffer, "CUR_LOC");
+        test_state = CUR_LOC;
+    }
+    else if(ch == 'o'){
+        strcpy(buffer, "OUTPUTS");
+        test_state = OUTPUTS;
+    }
+    else if(ch == 'q'){
+        strcpy(buffer, "QUIT");
+        test_state = QUIT;
+    }
+    else{
+        strcpy(buffer, "NONE");
+        test_state = -1;
+    }
+
+    printf("\n\rYou selected %s", buffer);
+
+    if(test_state == ALIASES){
+        do{
+            printf("\n\n\rTo test ALIASES, please type in the name of a location you would like to navigate to.");
+            printf("\n\rWe will do our best to match it to an actual building\n\r");
+            scanf("%99s", buffer);
+            test_aliasing(buffer);
+            scanf("%c", &ch);
+            printf("\n\rPress r to try again or any other key to exit: ");
+            scanf("%c", &ch);
+        }while(ch == 'r');
+    }
+    else if(test_state == BUTTONS){
+        printf("\n\n\rTo test BUTTONS, please press the user button.");
+        printf("\n\rPress any key to exit");
+        scanf("%c", &ch);
+    }
+    else if(test_state == CUR_LOC){
+        printf("\n\n\rTo test CUR_LOC, please press any key to display the current location.");
+        scanf("%c", &ch);
+        printf("\n\rYour current location is the Electrical Engineering Building");
+    }
+    else if(test_state == OUTPUTS){
+        printf("\n\n\rTo test OUTPUTS, please press any key.");
+        scanf("%c", &ch);
+        printf("\n\rNow playing sample output.");
+        test_output();
+        printf("\n\rPress any key to exit");
+        scanf("%c", &ch);
+    }
+    else if(test_state == QUIT){
+        break;
+    }
+    else{
+        printf("\n\n\rSorry, what you selected isn't an option. Please try again.");
+    }
 	navigation_main_loop();
 	continue;
 	printf("Latitude: ");
