@@ -31,6 +31,6 @@ Check navigatation_interface in docs folder.
 Development environment used: stm32CubeIDE with stlink
 
 External libraries used:
-    - HAL
-    - lwpgs: https://github.com/MaJerle/lwgps
+- HAL
+- lwpgs: https://github.com/MaJerle/lwgps
 
