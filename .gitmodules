@@ -1,0 +1,3 @@
+[submodule "navigation-map-generation"]
+	path = navigation-map-generation
+	url = git@github.com:ECE49022Team21/navigation-map-generation.git
