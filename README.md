@@ -8,7 +8,7 @@ I showed my PCB schematic in lab to Manu.
 
 Here is my subsystem activity diagram:
 
-![brain activity diagram](brain-activity-diagram.png)
+![brain activity diagram](docs/brain-activity-diagram.png)
 
 # Navigation
 Justin Lee
@@ -19,9 +19,9 @@ Then, using a map stored on the stm32 of the Academic Campus of Purdue Lafayette
 location to a destination location. Path generated is using "landmark" navigation.
 
 ### Activity Diagram
-![Path-Finding](code-flow-Path-Finding.png)
+![Path-Finding](docs/code-flow-Path-Finding.png)
 
-![Proximity](code-flow-Proximity.drawio.png)
+![Proximity](docs/code-flow-Proximity.drawio.png)
 
 ### Notes
 
