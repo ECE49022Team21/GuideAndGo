@@ -67,8 +67,15 @@ void navigation_main_loop() {
 	}
 }
 
-void process_buffer() {
-	lwgps_process(&gps, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE);
+// i = 0: First Half
+// i = 1: Second Half
+void process_buffer(int half_selection) {
+	if (half_selection == 0) {
+		lwgps_process(&gps, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE / 2);
+	} else {
+		lwgps_process(&gps, &nav_rx_data[5], UART2_RX_DMA_BUFFER_SIZE / 2);
+	}
+
 	//printf("Fix: %d\n\r", gps.fix);
 	if (gps.fix == 0) {
 		return;
@@ -87,7 +94,9 @@ void process_buffer() {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	//print_message();
-	process_buffer();
+	process_buffer(1);
+}
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
+	process_buffer(0);
 }
 

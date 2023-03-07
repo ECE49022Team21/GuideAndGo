@@ -17,7 +17,8 @@ extern float_t path_distances[MAX_PATH_LENGTH];
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart);
-void process_buffer();
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
+void process_buffer(int half_selection);
 int navigation_main_init(uint8_t destination);
 void navigation_main_loop();
 #endif
