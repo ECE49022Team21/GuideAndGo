@@ -1,5 +1,0 @@
-navigation.c:19:5:navigation_main_init	2
-navigation.c:48:6:navigation_main_loop	5
-navigation.c:72:6:process_buffer	3
-navigation.c:96:6:HAL_UART_RxCpltCallback	1
-navigation.c:99:6:HAL_UART_RxHalfCpltCallback	1

@@ -12,7 +12,8 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
 #endif
-extern UART_HandleTypeDef huart3;
+
+extern UART_HandleTypeDef huart6;
 
 void print_float(float_t num);
 void print_message();

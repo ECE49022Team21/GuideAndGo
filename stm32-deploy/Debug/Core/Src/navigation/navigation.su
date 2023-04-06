@@ -1,5 +1,0 @@
-../Core/Src/navigation/navigation.c:19:5:navigation_main_init	48	static
-../Core/Src/navigation/navigation.c:48:6:navigation_main_loop	40	static
-../Core/Src/navigation/navigation.c:72:6:process_buffer	16	static
-../Core/Src/navigation/navigation.c:96:6:HAL_UART_RxCpltCallback	16	static
-../Core/Src/navigation/navigation.c:99:6:HAL_UART_RxHalfCpltCallback	16	static

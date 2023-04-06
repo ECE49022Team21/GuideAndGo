@@ -1,4 +1,0 @@
-../Core/Src/helper_functions.c:7:1:__io_putchar	16	static
-../Core/Src/helper_functions.c:15:1:__io_getchar	16	static
-../Core/Src/helper_functions.c:29:6:print_float	24	static
-../Core/Src/helper_functions.c:39:6:print_message	16	static
