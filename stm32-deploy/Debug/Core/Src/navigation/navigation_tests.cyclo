@@ -1,0 +1,5 @@
+navigation_tests.c:12:6:parse_test	1
+navigation_tests.c:28:6:_test_single_run	1
+navigation_tests.c:42:6:nav_test_1	1
+navigation_tests.c:50:6:nav_test_2	1
+navigation_tests.c:59:6:test_runs	1

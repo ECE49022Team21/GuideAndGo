@@ -1,0 +1,16 @@
+dijkstra.c:8:5:is_empty	2
+dijkstra.c:16:5:parent	2
+dijkstra.c:20:5:left_child	1
+dijkstra.c:24:5:right_child	1
+dijkstra.c:28:6:swap	1
+dijkstra.c:34:6:shift_up	3
+dijkstra.c:45:6:shift_down	7
+dijkstra.c:67:6:insert	1
+dijkstra.c:74:9:extract_min	1
+dijkstra.c:85:9:get_min	1
+dijkstra.c:90:6:get_path	9
+dijkstra.c:127:6:print_heap	3
+dijkstra.c:142:6:print_node_heap_index	2
+dijkstra.c:150:6:print_dist	2
+dijkstra.c:158:6:print_prev	2
+dijkstra.c:166:6:dijkstra	6

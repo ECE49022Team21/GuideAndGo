@@ -1,0 +1,7 @@
+../Core/Src/navigation/proximity.c:8:12:parent	16	static
+../Core/Src/navigation/proximity.c:10:12:left_child	16	static
+../Core/Src/navigation/proximity.c:12:12:right_child	16	static
+../Core/Src/navigation/proximity.c:15:9:calc_squared_distance	56	static
+../Core/Src/navigation/proximity.c:24:6:k_d_search	56	static
+../Core/Src/navigation/proximity.c:84:9:get_nearest_node	32	static
+../Core/Src/navigation/proximity.c:92:9:squared_distance_to_node	16	static
