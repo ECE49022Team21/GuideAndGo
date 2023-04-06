@@ -139,8 +139,9 @@ int main(void)
   int fix_status;
   printf("Waiting for GPS Fix...\n\r");
   do {
-	  fix_status = navigation_main_init(destination);
+	  fix_status = navigation_gps_status();
   } while(fix_status == 0); // should check for number of satellites? 6 seems reasonable
+  navigation_set_path(destination);
   printf("Now entering main loop\n\r");
   while (1)
   {

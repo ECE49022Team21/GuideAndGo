@@ -15,34 +15,36 @@ float_t path_distances[MAX_PATH_LENGTH] = {
 		MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE,
 		MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE
 };
-
-int navigation_main_init(uint8_t destination) {
+int navigation_gps_status() {
 	if (gps.fix == 0) {
 		//printf("GPS Fix is 0!\n\r");
 		return 0;
 	} else {
 		printf("GPS Fix: %d. Number of satellites initially: %d\n\r", gps.fix, gps.sats_in_use);
+		return gps.sats_in_use;
 	}
-    float_t closest_distance;
-    coord_t last_coord;
-    last_coord.x = coord.x;
-    last_coord.y = coord.y;
-    printf("Latitude: ");
+}
+
+void navigation_set_path(uint8_t destination) {
+	float_t closest_distance;
+	coord_t last_coord;
+	last_coord.x = coord.x;
+	last_coord.y = coord.y;
+	printf("Latitude: ");
 	print_float(last_coord.y);
 	printf(" ");
 
 	printf("Longitude: ");
 	print_float(last_coord.x);
 	printf("\n\r");
-    uint8_t nearest_node = get_nearest_node(&last_coord, &closest_distance);
-    printf("Distance to nearest node: ");
-    print_float(closest_distance);
-    printf("\n\r");
+	uint8_t nearest_node = get_nearest_node(&last_coord, &closest_distance);
+	printf("Distance to nearest node: ");
+	print_float(closest_distance);
+	printf("\n\r");
 	uint8_t source = nearest_node;
 	printf("Source: %d, %s\n\r", source, landmarks[source].name);
 	printf("Destination: %d, %s\n\r", destination, landmarks[destination].name);
 	dijkstra(source, destination);
-	return gps.sats_in_use;
 }
 
 void navigation_main_loop() {
