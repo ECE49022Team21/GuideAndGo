@@ -19,6 +19,7 @@ float_t path_distances[MAX_PATH_LENGTH] = {
 int navigation_gps_status() {
 	if (gps.fix == 0) {
 		//printf("GPS Fix is 0!\n\r");
+		//printf("Sats in use: %d\n", gps.sats_in_use);
 		return 0;
 	} else {
 		printf("GPS Fix: %d. Number of satellites initially: %d\n\r", gps.fix, gps.sats_in_use);

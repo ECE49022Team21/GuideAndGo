@@ -14,7 +14,7 @@
 #endif
 
 extern UART_HandleTypeDef huart6;
-
+extern UART_HandleTypeDef huart3;
 void print_float(float_t num);
 void print_message();
 #endif

@@ -69,17 +69,19 @@
 /* Private variables ---------------------------------------------------------*/
 
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
-DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
-int test_state = -1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
+static void MX_USART3_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN PFP */
@@ -109,6 +111,7 @@ int main(void)
   /* USER CODE BEGIN Init */
   char ch;
   char buffer[100];
+  char test_buffer[1000] = {0};
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -121,24 +124,26 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
+  MX_USART3_UART_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+  //int a = USE_HAL_UART_REGISTER_CALLBACKS;
+
   lwgps_init(&gps);
   //Enables scanf and printf to work
   setvbuf(stdin, NULL, _IONBF, 0);
   //test_runs();
-  HAL_UART_Receive_DMA(&huart2, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE);
+  HAL_UART_Receive_DMA(&huart6, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  printf("\n\r");
-
   int destination = 34;
   int fix_status;
-  printf("Waiting for GPS Fix...\n\r");
+  printf("Waiting for GPS Fix...\n");
   do {
+	  //printf("Waiting for GPS Fix...\n\r");
 	  fix_status = navigation_gps_status();
   } while(fix_status == 0); // should check for number of satellites? 6 seems reasonable
   navigation_set_path(destination);
@@ -146,78 +151,6 @@ int main(void)
   while (1)
   {
     navigation_main_loop();
-	continue;
-    printf("\n\n\rWhat would you like to test?");
-    printf("\n\rType:"
-            "\n\ra for Aliases"
-            "\n\rb for Buttons"
-            "\n\rc for Current Location"
-            "\n\ro for Output"
-            "\n\rq to Quit"
-            "\n\r: ");
-    scanf("%c", &ch);
-    if(ch == 'a'){
-        strcpy(buffer, "ALIASES");
-        test_state = ALIASES;
-    }
-    else if(ch == 'b'){
-        strcpy(buffer, "BUTTONS");
-        test_state = BUTTONS;
-    }
-    else if(ch == 'c'){
-        strcpy(buffer, "CUR_LOC");
-        test_state = CUR_LOC;
-    }
-    else if(ch == 'o'){
-        strcpy(buffer, "OUTPUTS");
-        test_state = OUTPUTS;
-    }
-    else if(ch == 'q'){
-        strcpy(buffer, "QUIT");
-        test_state = QUIT;
-    }
-    else{
-        strcpy(buffer, "NONE");
-        test_state = -1;
-    }
-
-    printf("\n\rYou selected %s", buffer);
-
-    if(test_state == ALIASES){
-        do{
-            printf("\n\n\rTo test ALIASES, please type in the name of a location you would like to navigate to.");
-            printf("\n\rWe will do our best to match it to an actual building\n\r");
-            scanf("%99s", buffer);
-            test_aliasing(buffer);
-            scanf("%c", &ch);
-            printf("\n\rPress r to try again or any other key to exit: ");
-            scanf("%c", &ch);
-        }while(ch == 'r');
-    }
-    else if(test_state == BUTTONS){
-        printf("\n\n\rTo test BUTTONS, please press the user button.");
-        printf("\n\rPress any key to exit");
-        scanf("%c", &ch);
-    }
-    else if(test_state == CUR_LOC){
-        printf("\n\n\rTo test CUR_LOC, please press any key to display the current location.");
-        scanf("%c", &ch);
-        printf("\n\rYour current location is the Electrical Engineering Building");
-    }
-    else if(test_state == OUTPUTS){
-        printf("\n\n\rTo test OUTPUTS, please press any key.");
-        scanf("%c", &ch);
-        printf("\n\rNow playing sample output.");
-        test_output();
-        printf("\n\rPress any key to exit");
-        scanf("%c", &ch);
-    }
-    else if(test_state == QUIT){
-        break;
-    }
-    else{
-        printf("\n\n\rSorry, what you selected isn't an option. Please try again.");
-    }
 	continue;
 	printf("Latitude: ");
 	print_float(coord.y);
@@ -229,7 +162,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   }
-  printf("\n\rExiting Brain Subsytem Tests\n\r");
   /* USER CODE END 3 */
 }
 
@@ -249,7 +181,7 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -257,8 +189,21 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 216;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
+  RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -267,12 +212,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK)
   {
     Error_Handler();
   }
@@ -314,6 +259,41 @@ static void MX_USART2_UART_Init(void)
 }
 
 /**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
   * @brief USART6 Initialization Function
   * @param None
   * @retval None
@@ -329,7 +309,7 @@ static void MX_USART6_UART_Init(void)
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 9600;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;
@@ -355,12 +335,12 @@ static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* DMA2_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 
 }
 
@@ -425,14 +405,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
   HAL_GPIO_Init(RMII_TXD1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : STLK_RX_Pin STLK_TX_Pin */
-  GPIO_InitStruct.Pin = STLK_RX_Pin|STLK_TX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USB_PowerSwitchOn_Pin */
   GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;

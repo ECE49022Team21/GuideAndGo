@@ -17,12 +17,12 @@ GETCHAR_PROTOTYPE
   uint8_t ch = 0;
 
   /* Clear the Overrun flag just before receiving the first character */
-  __HAL_UART_CLEAR_OREFLAG(&huart6);
+  __HAL_UART_CLEAR_OREFLAG(&huart3);
 
   /* Wait for reception of a character on the USART RX line and echo this
    * character on console */
-  HAL_UART_Receive(&huart6, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-  HAL_UART_Transmit(&huart6, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Receive(&huart3, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
   return ch;
 }
 
