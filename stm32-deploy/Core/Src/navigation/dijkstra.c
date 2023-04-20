@@ -147,13 +147,13 @@ void print_node_heap_index(int* heap) {
     printf("\n");
 }
 
-void print_dist(float_t* dist) {
-    printf("DIST\n");
-    for (int i = 0; i < LEN_LANDMARKS; i++) {
-        printf("%f, ", dist[i]);
-    }
-    printf("\n");
-}
+// void print_dist(float_t* dist) {
+//     printf("DIST\n");
+//     for (int i = 0; i < LEN_LANDMARKS; i++) {
+//         printf("%f, ", dist[i]);
+//     }
+//     printf("\n");
+// }
 
 void print_prev(uint8_t* prev) {
     printf("PREV\n");

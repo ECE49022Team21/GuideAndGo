@@ -114,6 +114,7 @@ int main(void)
   /* USER CODE BEGIN Init */
   char ch;
   char buffer[100];
+  char state[11];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -500,6 +501,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == GPIO_PIN_13) {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+
+  } else {
+      __NOP();
+  }
+}
 
 /* USER CODE END 4 */
 

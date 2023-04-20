@@ -31,8 +31,7 @@
 #include "navigation.h"
 #include "helper_functions.h"
 #include "navigation_tests.h"
-#include "location.h"
-#include "test.h"
+#include "state.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +58,8 @@
 #define OUTPUTS 2
 #define CUR_LOC 3
 #define QUIT 4
+#define MIC_PIN GPIO_PIN_5
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -68,9 +69,12 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
+DMA_HandleTypeDef hdma_uart5_rx;
+DMA_HandleTypeDef hdma_uart5_tx;
 DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
@@ -84,6 +88,7 @@ static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART6_UART_Init(void);
+static void MX_UART5_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -127,6 +132,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
+  MX_UART5_Init();
   /* USER CODE BEGIN 2 */
   //int a = USE_HAL_UART_REGISTER_CALLBACKS;
 
@@ -135,10 +141,14 @@ int main(void)
   setvbuf(stdin, NULL, _IONBF, 0);
   //test_runs();
   HAL_UART_Receive_DMA(&huart6, nav_rx_data, UART2_RX_DMA_BUFFER_SIZE);
+
+  HAL_UART_Receive_DMA(&huart5, (uint8_t*)state, STATE_SIZE);
+  HAL_UART_Transmit_DMA(&huart5, (uint8_t*)state, STATE_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  set_state(BOOT, 0, 0, 0);
   int destination = 34;
   int fix_status;
   printf("Waiting for GPS Fix...\n");
@@ -221,6 +231,41 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief UART5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART5_Init(void)
+{
+
+  /* USER CODE BEGIN UART5_Init 0 */
+
+  /* USER CODE END UART5_Init 0 */
+
+  /* USER CODE BEGIN UART5_Init 1 */
+
+  /* USER CODE END UART5_Init 1 */
+  huart5.Instance = UART5;
+  huart5.Init.BaudRate = 9600;
+  huart5.Init.WordLength = UART_WORDLENGTH_8B;
+  huart5.Init.StopBits = UART_STOPBITS_1;
+  huart5.Init.Parity = UART_PARITY_NONE;
+  huart5.Init.Mode = UART_MODE_TX_RX;
+  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart5.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART5_Init 2 */
+
+  /* USER CODE END UART5_Init 2 */
+
 }
 
 /**
@@ -336,8 +381,15 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+  /* DMA1_Stream7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream7_IRQn);
   /* DMA2_Stream1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
@@ -406,6 +458,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
   HAL_GPIO_Init(RMII_TXD1_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PG5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
   /*Configure GPIO pin : USB_PowerSwitchOn_Pin */
   GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -446,6 +504,57 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	__NOP();
+	if(get_state() == PROMPT){
+		if(GPIO_Pin == MIC_PIN){
+			set_state(NAVIGATE, 0, 0, 0);
+		}
+		else{
+			set_state(IDLE, 0, 0, 0);
+		}
+		return;
+	}
+	if(GPIO_Pin == MIC_PIN) {
+		if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_5) == GPIO_PIN_SET){
+		  set_state(READ, 0, 0, 0);
+		}
+		else if(HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_5) == GPIO_PIN_RESET){
+		  set_state(PROCESS, 0, 0, 0);
+		}
+		else{
+		  __NOP();
+		}
+	} else {
+	  __NOP();
+	}
+}
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart6){
+		process_buffer(1);
+	}
+//	  HAL_UART_Transmit(&huart3, (uint8_t*)buffer, buffer_len, 500);
+//	  buffer_len = sprintf(buffer, "\n\r");
+//	  HAL_UART_Transmit(&huart3, (uint8_t*)buffer, buffer_len, 500);
+}
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
+	if(huart == &huart6){
+		process_buffer(0);
+	}
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+  __NOP();
+}
+
+void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart) {
+  __NOP();
+}
 
 /* USER CODE END 4 */
 

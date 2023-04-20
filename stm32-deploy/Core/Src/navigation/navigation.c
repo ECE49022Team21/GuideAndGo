@@ -97,10 +97,12 @@ void process_buffer(int half_selection) {
 	printf("\n\r");
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	process_buffer(1);
-}
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
-	process_buffer(0);
-}
+// MOVED TO MAIN
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
+//
+//	process_buffer(1);
+//}
+//void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
+//	process_buffer(0);
+//}
 

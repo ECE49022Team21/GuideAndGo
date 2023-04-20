@@ -1,9 +1,9 @@
 #ifndef LANDMARKS_HEADER_FILE_G
 #define LANDMARKS_HEADER_FILE_G
-#define LEN_LANDMARKS 40
 
 #include "custom_typedef.h"
-        
+#define LEN_LANDMARKS 40
+
 typedef struct {
     float_t x;
     float_t y;
@@ -13,7 +13,7 @@ typedef struct {
     float_t* dist_list;
     float_t buffer_distance;
 } landmark_t;
-        
+
 
 extern uint8_t _Landmark_Adj_List_0[];
 extern uint8_t _Landmark_Adj_List_1[];
