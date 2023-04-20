@@ -18,5 +18,8 @@ int get_state();
 int set_state(int state, int curr_landmark, int next_landmark, int final_landmark);
 void send_state();
 char* recv_state();
+int set_curr_landmark(int curr_landmark);
+int set_next_landmark(int next_landmark);
+int set_dest_landmark(int dest_landmark);
 
 #endif
