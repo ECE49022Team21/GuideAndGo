@@ -114,9 +114,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  char ch;
-  char buffer[100];
-  char test_buffer[1000] = {0};
+  curr_path_index = 0;
   /* USER CODE END Init */
 
   /* Configure the system clock */

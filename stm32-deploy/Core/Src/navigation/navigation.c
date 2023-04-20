@@ -16,6 +16,13 @@ float_t path_distances[MAX_PATH_LENGTH] = {
 		MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE,MAX_DISTANCE
 };
 
+int curr_path_index = 0;
+
+// IF CURRENT IS DESTINATION, WILL RETURN -1
+int get_next_in_path() {
+	return path[curr_path_index + 1];
+}
+
 int navigation_gps_status() {
 	if (gps.fix == 0) {
 		//printf("GPS Fix is 0!\n\r");
@@ -62,6 +69,13 @@ void navigation_main_loop() {
 			// Call Brain function here
 			printf("You are now near %s\n\r", landmarks[nearest_node].name);
 			set_curr_landmark(nearest_node);
+			for (int i = 1; i < MAX_PATH_LENGTH - curr_path_index; i++) {
+				if (path[curr_path_index + i] == nearest_node) {
+					curr_path_index += i;
+				} else if (path[curr_path_index + i] == -1) {
+					break;
+				}
+			}
 		}
 	}
 	for (int i = 0; i < MAX_PATH_LENGTH; i++) {
