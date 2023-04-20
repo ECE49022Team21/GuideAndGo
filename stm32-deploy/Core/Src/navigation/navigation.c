@@ -61,6 +61,7 @@ void navigation_main_loop() {
 			visited_nodes[nearest_node] = 1;
 			// Call Brain function here
 			printf("You are now near %s\n\r", landmarks[nearest_node].name);
+			set_curr_landmark(nearest_node);
 		}
 	}
 	for (int i = 0; i < MAX_PATH_LENGTH; i++) {

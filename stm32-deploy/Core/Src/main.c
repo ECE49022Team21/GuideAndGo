@@ -156,6 +156,7 @@ int main(void)
 	  //printf("Waiting for GPS Fix...\n\r");
 	  fix_status = navigation_gps_status();
   } while(fix_status == 0); // should check for number of satellites? 6 seems reasonable
+  set_state(IDLE, 0, 0, 0);
   navigation_set_path(destination);
   printf("Now entering main loop\n\r");
   while (1)
@@ -498,6 +499,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

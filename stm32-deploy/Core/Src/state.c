@@ -19,3 +19,13 @@ int set_state(int new_state, int curr_landmark, int next_landmark, int final_lan
         return 1;
     }
 }
+
+//"0,23,56,89"
+
+int set_curr_landmark(int curr_landmark){
+    int tens_place = curr_landmark / 10;
+    int ones_place = curr_landmark % 10;
+    state[2] = '0' + tens_place;
+    state[3] = '0' + ones_place;
+    return 1;
+}
